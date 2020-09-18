@@ -1,0 +1,49 @@
+---
+      - import_playbook: init.yml hostlist=ttrss
+      - name: Run TinyTinyRss
+        hosts: ttrss
+        gather_facts: no
+        tasks:
+          # - name: Init server
+          #   import_playbook: init.yml
+          - name: create /root/ttrss/
+            file:
+                path: /root/ttrss
+                state: directory
+          - name: get dockerCompose file
+            get_url:
+                url: https://raw.githubusercontent.com/HenryQW/Awesome-TTRSS/master/docker-compose.yml
+                dest: /root/ttrss/docker-compose.yml
+
+          - name: replace url
+            replace: 
+                path: /root/ttrss/docker-compose.yml
+                regexp: localhost
+                replace: "{{ inventory_hostname }}"
+        #   - name: replace dbpass
+        #     replace: 
+        #         path: /root/ttrss/docker-compose.yml
+        #         regexp: DB_PASS=ttrss
+        #         replace: DB_PASS=Dottrss
+        #   - name: replace postrgespass
+        #     replace: 
+        #         path: /root/ttrss/docker-compose.yml
+        #         regexp: POSTGRES_PASSWORD=ttrss
+        #         replace: POSTGRES_PASSWORD=Dottrss
+          - name: create and start ttrss
+            docker_compose:
+                project_src: /root/ttrss
+            register: output
+    #   - name: Set Nginx
+    #     hosts: ttrss
+    #     vars:
+    #         - listen: 80
+    #           server_name: inevitable.tech
+    #           no_index: true
+    #           extra_parameter: |
+    #             location / {
+    #             proxy_pass http://localhost:181;
+    #             }
+              
+    #     roles:
+    #         - {role: geerlingguy.nginx}

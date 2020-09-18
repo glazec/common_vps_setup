@@ -1,0 +1,41 @@
+---
+    - name: Init Ubuntu Server
+      hosts: "{{hostlist}}"
+      tasks:
+        - name: Apt-get update
+          apt: update_cache=true
+        - name: ensure Unzip is there
+          apt:
+              name: unzip
+              state: latest
+        - name: ensure Wget is there
+          apt:
+              name: wget
+              state: latest
+        - name: ensure Curl is there
+          apt:
+              name: curl
+              state: latest
+    - name: ensure Node is there
+      hosts: "{{hostlist}}"
+      gather_facts: no
+      vars:
+        nodejs_npm_global_packages:
+          - name: pm2
+      # vars_files:
+      #   - vars/main.yml
+      
+      roles:
+        - geerlingguy.nodejs
+    - name: ensure Docker is there
+      gather_facts: no
+      hosts: "{{hostlist}}"
+      vars:
+        pip_install_packages:
+          - name: docker
+          - name: docker-compose
+      
+      roles:
+        - geerlingguy.pip
+        - geerlingguy.docker
+    

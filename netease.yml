@@ -1,0 +1,20 @@
+---
+      - import_playbook: init.yml hostlist=netease
+
+      - name: Run UnblockNeteaseMusic
+        hosts: netease
+        gather_facts: no
+        tasks:
+          - name: create /root/netease/
+            file:
+                path: /root/netease
+                state: directory
+          - name: git clone repo
+            git:
+              repo: "https://github.com/nondanee/UnblockNeteaseMusic.git"
+              dest: /root/netease
+          # - name: change dir
+          #   command: chdir=/root/netease/
+          - name: start unblockNetease
+            shell: npx pm2 start /root/netease/app.js --name netease -- --port 40404
+          
